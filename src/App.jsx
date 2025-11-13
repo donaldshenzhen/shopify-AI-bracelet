@@ -56,8 +56,8 @@ function App() {
   
   // 初始化音频元素
   useEffect(() => {
-    // 创建音频元素并设置本地冥想音乐源
-    const audio = new Audio('/Users/donald/Downloads/meditation-background-434654.mp3');
+    // 创建音频元素并设置项目内的音乐源
+    const audio = new Audio('/music/meditation-background-434654.mp3');
     audio.loop = true; // 设置循环播放
     audio.volume = 0.3; // 设置默认音量
     audioRef.current = audio;
