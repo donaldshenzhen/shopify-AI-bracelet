@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>冥想计时器 - 带音乐</title>
+  <style>
+    /* 重置样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      overflow: hidden;
+    }
+    
+    /* 主容器 */
+    .meditation-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      width: 100%;
+      padding: 20px;
+      position: relative;
+    }
+    
+    /* 计时器显示 */
+    .timer-display {
+      margin-bottom: 60px;
+      text-align: center;
+    }
+    
+    .timer-display h1 {
+      font-size: 6rem;
+      font-weight: 300;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      letter-spacing: 2px;
+    }
+    
+    /* 控制按钮容器 */
+    .timer-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    /* 播放/暂停按钮 */
+    .play-pause-button {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+    
+    .play-pause-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .play-pause-button:active {
+      transform: scale(0.95);
+    }
+    
+    /* 音乐图标 */
+    .music-icon {
+      position: absolute;
+      top: 40px;
+      right: 40px;
+      font-size: 1.2rem;
+      opacity: 0.7;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .music-active {
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+    
+    /* 信息文本 */
+    .info {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      opacity: 0.8;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .timer-display h1 {
+        font-size: 4rem;
+      }
+      
+      .play-pause-button {
+        width: 100px;
+        height: 100px;
+        font-size: 1.3rem;
+      }
+      
+      .music-icon {
+        top: 20px;
+        right: 20px;
+        font-size: 1rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .timer-display h1 {
+        font-size: 3rem;
+      }
+      
+      .play-pause-button {
+        width: 90px;
+        height: 90px;
+        font-size: 1.2rem;
+      }
+      
+      .music-icon {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="meditation-container">
+    <!-- 音乐图标指示器 -->
+    <div class="music-icon" id="musicIndicator">
+      <span>🎵</span>
+      <span>冥想音乐</span>
+    </div>
+    
+    <!-- 计时器显示 -->
+    <div class="timer-display">
+      <h1 id="timerDisplay">10:00</h1>
+    </div>
+    
+    <!-- 控制按钮 -->
+    <div class="timer-controls">
+      <button class="play-pause-button" id="playPauseButton">开始</button>
+    </div>
+    
+    <!-- 信息文本 -->
+    <div class="info">
+      点击"开始"按钮启动计时并播放冥想音乐<br>
+      再次点击暂停计时和音乐
+    </div>
+  </div>
+  
+  <!-- 音频元素 -->
+  <audio id="meditationAudio" loop preload="auto">
+    <source src="file:///Users/donald/Downloads/meditation-background-434654.mp3" type="audio/mpeg">
+    您的浏览器不支持音频元素。
+  </audio>
+  
+  <script>
+    // 获取DOM元素
+    const playPauseButton = document.getElementById('playPauseButton');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const meditationAudio = document.getElementById('meditationAudio');
+    const musicIndicator = document.getElementById('musicIndicator');
+    
+    // 状态变量
+    let isPlaying = false;
+    let remainingTime = 10 * 60; // 10分钟（秒）
+    let timerInterval = null;
+    
+    // 设置音频初始状态
+    meditationAudio.volume = 0.3; // 设置默认音量为30%
+    
+    // 格式化时间
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    // 播放/暂停按钮点击事件
+    playPauseButton.addEventListener('click', function() {
+      isPlaying = !isPlaying;
+      playPauseButton.textContent = isPlaying ? '暂停' : '开始';
+      
+      if (isPlaying) {
+        // 开始计时
+        timerInterval = setInterval(function() {
+          if (remainingTime > 0) {
+            remainingTime--;
+            timerDisplay.textContent = formatTime(remainingTime);
+          } else {
+            // 计时结束
+            clearInterval(timerInterval);
+            isPlaying = false;
+            playPauseButton.textContent = '开始';
+            meditationAudio.pause();
+            musicIndicator.classList.remove('music-active');
+          }
+        }, 1000);
+        
+        // 播放音乐
+        meditationAudio.play().catch(error => {
+          console.warn('无法自动播放音乐:', error);
+          // 提示用户可能需要交互才能播放音乐
+          alert('请点击页面后再次尝试播放音乐');
+          isPlaying = false;
+          playPauseButton.textContent = '开始';
+          clearInterval(timerInterval);
+        });
+        
+        // 添加音乐活动状态
+        musicIndicator.classList.add('music-active');
+      } else {
+        // 暂停计时和音乐
+        clearInterval(timerInterval);
+        meditationAudio.pause();
+        musicIndicator.classList.remove('music-active');
+      }
+    });
+    
+    // 初始化显示
+    timerDisplay.textContent = formatTime(remainingTime);
+    
+    // 尝试预加载音频
+    meditationAudio.addEventListener('canplay', function() {
+      console.log('音频已准备好播放');
+    });
+    
+    // 处理音频错误
+    meditationAudio.addEventListener('error', function(e) {
+      console.error('音频加载错误:', e);
+      musicIndicator.textContent = '🎵 音乐加载失败';
+    });
+  </script>
+</body>
+</html>

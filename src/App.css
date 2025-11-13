@@ -1,0 +1,107 @@
+/* 重置样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 主容器 */
+.meditation-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  overflow: hidden;
+}
+
+/* 计时器显示 */
+.timer-display {
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.timer-display h1 {
+  font-size: 6rem;
+  font-weight: 300;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+/* 控制按钮容器 */
+.timer-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 播放/暂停按钮 */
+.play-pause-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.play-pause-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.play-pause-button:active {
+  transform: scale(0.95);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .timer-display h1 {
+    font-size: 4rem;
+  }
+  
+  .play-pause-button {
+    width: 100px;
+    height: 100px;
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .timer-display h1 {
+    font-size: 3rem;
+  }
+  
+  .play-pause-button {
+    width: 90px;
+    height: 90px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .timer-display h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+  
+  .play-pause-button {
+    width: 80px;
+    height: 80px;
+    font-size: 1.1rem;
+  }
+}

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>简易冥想计时器 - 预览</title>
+  <style>
+    /* 预览样式 - 与实际应用相似 */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    
+    .app-container {
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .timer-display {
+      margin-bottom: 40px;
+    }
+    
+    .timer-display h1 {
+      font-size: 5rem;
+      margin: 0;
+      font-weight: 300;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .timer-controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .play-pause-button {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 120px;
+      height: 120px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+    }
+    
+    .play-pause-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    
+    .play-pause-button:active {
+      transform: scale(0.95);
+    }
+    
+    /* 说明文本 */
+    .info {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      opacity: 0.8;
+      font-size: 0.9rem;
+    }
+    
+    .info a {
+      color: white;
+      text-decoration: underline;
+    }
+    
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+      .timer-display h1 {
+        font-size: 4rem;
+      }
+      
+      .play-pause-button {
+        width: 100px;
+        height: 100px;
+        font-size: 1.3rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .timer-display h1 {
+        font-size: 3rem;
+      }
+      
+      .play-pause-button {
+        width: 90px;
+        height: 90px;
+        font-size: 1.2rem;
+      }
+    }
+    
+    @media (orientation: landscape) and (max-height: 500px) {
+      .timer-display h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+      }
+      
+      .play-pause-button {
+        width: 80px;
+        height: 80px;
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="timer-display">
+      <h1>10:00</h1>
+    </div>
+    <div class="timer-controls">
+      <button class="play-pause-button">开始</button>
+    </div>
+  </div>
+  
+  <div class="info">
+    简易冥想计时器 | 点击"开始"按钮启动计时，再次点击暂停计时
+  </div>
+  
+  <script>
+    // 简单的预览交互逻辑
+    const playPauseButton = document.querySelector('.play-pause-button');
+    const timerDisplay = document.querySelector('.timer-display h1');
+    let isPlaying = false;
+    let remainingTime = 10 * 60; // 10分钟（秒）
+    let timerInterval;
+    
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    
+    playPauseButton.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      playPauseButton.textContent = isPlaying ? '暂停' : '开始';
+      
+      if (isPlaying) {
+        timerInterval = setInterval(() => {
+          if (remainingTime > 0) {
+            remainingTime--;
+            timerDisplay.textContent = formatTime(remainingTime);
+          } else {
+            // 计时结束
+            clearInterval(timerInterval);
+            isPlaying = false;
+            playPauseButton.textContent = '开始';
+          }
+        }, 1000);
+      } else {
+        clearInterval(timerInterval);
+      }
+    });
+    
+    // 初始化显示
+    timerDisplay.textContent = formatTime(remainingTime);
+  </script>
+</body>
+</html>
