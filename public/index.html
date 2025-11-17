@@ -573,7 +573,7 @@
             window.addEventListener('offline', updateOnlineStatus);
             updateOnlineStatus();
             
-            // PWA 安装提示
+            // PWA 安装事件处理
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
