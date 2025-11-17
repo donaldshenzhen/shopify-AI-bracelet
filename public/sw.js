@@ -11,7 +11,9 @@ const STATIC_ASSETS = [
   '/src/App.jsx',
   '/src/App.css',
   '/src/index.css',
-  '/music/meditation-background-434654.mp3'
+  '/music/meditation-background-434654.mp3',
+  '/videos/forest-background.mp4',
+  '/videos/candlelight-background.mp4'
 ];
 
 // 安装事件 - 缓存静态资源
@@ -64,6 +66,39 @@ self.addEventListener('fetch', (event) => {
   
   // 只处理同源请求
   if (url.origin !== location.origin) {
+    return;
+  }
+  
+  // 对于视频文件，优先使用缓存，失败后尝试网络
+  if (request.url.includes('/videos/')) {
+    event.respondWith(
+      caches.match(request)
+        .then((response) => {
+          if (response) {
+            return response;
+          }
+          
+          return fetch(request)
+            .then((response) => {
+              // 如果成功获取，则缓存响应
+              if (response.ok) {
+                const responseClone = response.clone();
+                caches.open(DYNAMIC_CACHE_NAME)
+                  .then((cache) => {
+                    cache.put(request, responseClone);
+                  });
+              }
+              return response;
+            })
+            .catch(() => {
+              // 如果网络请求失败，返回一个默认响应
+              return new Response('Video file unavailable offline', {
+                status: 503,
+                statusText: 'Service Unavailable'
+              });
+            });
+        })
+    );
     return;
   }
   
