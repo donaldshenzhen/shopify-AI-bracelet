@@ -299,7 +299,7 @@
             
             <!-- 音频元素 -->
             <audio id="meditationAudio" preload="auto" loop>
-                <source src="public/music/meditation-background-434654.mp3" type="audio/mpeg">
+                <source src="music/meditation-background-434654.mp3" type="audio/mpeg">
                 您的浏览器不支持音频播放。
             </audio>
         </div>
@@ -383,8 +383,8 @@
                     if ('Notification' in window && Notification.permission === 'granted') {
                         new Notification('冥想时间结束', {
                             body: '您的冥想时间已经结束，希望您感到放松和愉悦！',
-                            icon: '/icons/icon-192x192.png',
-                            badge: '/icons/icon-96x96.png',
+                            icon: 'icons/icon-192x192.png',
+                            badge: 'icons/icon-96x96.png',
                             vibrate: [200, 100, 200]
                         });
                     }
@@ -433,7 +433,7 @@
             
             // 尝试加载视频文件
             const videoElement = document.createElement('video');
-            videoElement.src = `public/videos/${video.file}`;
+            videoElement.src = `videos/${video.file}`;
             videoElement.autoplay = true;
             videoElement.muted = true;
             videoElement.loop = true;
@@ -597,7 +597,7 @@
             
             // 注册 Service Worker
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('public/sw.js')
+                navigator.serviceWorker.register('sw.js')
                     .then(registration => {
                         console.log('Service Worker 注册成功:', registration);
                     })
