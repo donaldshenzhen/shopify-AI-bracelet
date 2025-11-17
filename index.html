@@ -1,36 +1,614 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI手环冥想应用</title>
     
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#16213e" />
-    <meta name="description" content="AI-powered smart bracelet meditation and wellness companion" />
+    <!-- PWA 相关标签 -->
+    <meta name="theme-color" content="#4a90e2" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Meditation" />
-    <meta name="application-name" content="AI Bracelet Meditation" />
-    <meta name="msapplication-TileColor" content="#16213e" />
-    <meta name="msapplication-config" content="/browserconfig.xml" />
     
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- Manifest 链接 -->
+    <link rel="manifest" href="public/manifest.json" />
     
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
+    <!-- 图标链接 -->
+    <link rel="icon" type="image/svg+xml" href="public/icons/icon.svg" />
+    <link rel="apple-touch-icon" href="public/icons/icon-192x192.png" />
     
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96x96.png" />
-    <link rel="shortcut icon" href="/icons/icon-96x96.png" />
-    
-    <title>AI Bracelet Meditation</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        .meditation-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            cursor: grab;
+            user-select: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .meditation-container:active {
+            cursor: grabbing;
+        }
+
+        /* 视频背景样式 */
+        .video-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .background-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* 视频指示器 */
+        .video-indicators {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .indicator.active {
+            background-color: #ffffff;
+            transform: scale(1.2);
+        }
+
+        /* 视频名称 */
+        .video-name {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+
+        /* 内容覆盖层 */
+        .content-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0.1) 0%,
+                rgba(0, 0, 0, 0.3) 100%
+            );
+        }
+
+        /* PWA 状态 */
+        .pwa-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .offline-indicator {
+            background-color: rgba(255, 152, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .install-button {
+            background-color: rgba(76, 175, 80, 0.9);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .install-button:hover {
+            background-color: rgba(76, 175, 80, 1);
+            transform: translateY(-2px);
+        }
+
+        /* 计时器显示 */
+        .timer-display {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .timer-display h1 {
+            font-size: 72px;
+            font-weight: 200;
+            color: #ffffff;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        /* 控制按钮 */
+        .timer-controls {
+            margin-bottom: 40px;
+        }
+
+        .play-pause-button {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .play-pause-button:hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 视频占位符样式 */
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .timer-display h1 {
+                font-size: 56px;
+            }
+
+            .play-pause-button {
+                padding: 16px 32px;
+                font-size: 16px;
+            }
+
+            .video-name {
+                font-size: 14px;
+                padding: 4px 12px;
+            }
+
+            .pwa-status {
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .timer-display h1 {
+                font-size: 48px;
+            }
+
+            .timer-display {
+                margin-bottom: 30px;
+            }
+
+            .timer-controls {
+                margin-bottom: 30px;
+            }
+
+            .play-pause-button {
+                padding: 14px 28px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="meditation-container">
+            <!-- 视频背景 -->
+            <div class="video-background">
+                <div id="videoContainer" class="video-placeholder">
+                    <div>
+                        <div>🌲 森林背景视频 🌲</div>
+                        <div style="margin-top: 20px; font-size: 16px;">请将视频文件添加到 /public/videos/ 目录</div>
+                        <div style="margin-top: 10px; font-size: 14px;">文件名：forest-background.mp4, candlelight-background.mp4</div>
+                    </div>
+                </div>
+                
+                <!-- 视频切换指示器 -->
+                <div class="video-indicators">
+                    <div class="indicator active" data-index="0"></div>
+                    <div class="indicator" data-index="1"></div>
+                </div>
+                
+                <!-- 当前视频名称 -->
+                <div class="video-name" id="videoName">森林背景</div>
+            </div>
+            
+            <!-- 内容覆盖层 -->
+            <div class="content-overlay">
+                <!-- PWA 状态指示器 -->
+                <div class="pwa-status">
+                    <div id="offlineIndicator" class="offline-indicator" style="display: none;">
+                        📱 离线模式
+                    </div>
+                    <button id="installButton" class="install-button" style="display: none;">
+                        📱 安装应用
+                    </button>
+                </div>
+                
+                <div class="timer-display">
+                    <h1 id="timerDisplay">10:00</h1>
+                </div>
+                
+                <div class="timer-controls">
+                    <button id="playPauseButton" class="play-pause-button">开始</button>
+                </div>
+            </div>
+            
+            <!-- 音频元素 -->
+            <audio id="meditationAudio" preload="auto" loop>
+                <source src="public/music/meditation-background-434654.mp3" type="audio/mpeg">
+                您的浏览器不支持音频播放。
+            </audio>
+        </div>
+    </div>
+
+    <script>
+        // 应用状态
+        let isPlaying = false;
+        let timeLeft = 10 * 60; // 10分钟
+        let currentVideoIndex = 0;
+        let isTransitioning = false;
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        // 视频文件列表
+        const videos = [
+            { name: '森林背景', file: 'forest-background.mp4' },
+            { name: '烛光背景', file: 'candlelight-background.mp4' }
+        ];
+        
+        // DOM 元素
+        const timerDisplay = document.getElementById('timerDisplay');
+        const playPauseButton = document.getElementById('playPauseButton');
+        const meditationAudio = document.getElementById('meditationAudio');
+        const videoContainer = document.getElementById('videoContainer');
+        const videoName = document.getElementById('videoName');
+        const indicators = document.querySelectorAll('.indicator');
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        const installButton = document.getElementById('installButton');
+        
+        // 设置音频音量
+        meditationAudio.volume = 0.3;
+        
+        // 格式化时间显示
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+        }
+        
+        // 处理播放/暂停
+        function handlePlayPause() {
+            isPlaying = !isPlaying;
+            
+            if (isPlaying) {
+                playPauseButton.textContent = '暂停';
+                meditationAudio.play().catch(error => {
+                    console.warn('无法自动播放音乐:', error);
+                });
+                startTimer();
+            } else {
+                playPauseButton.textContent = '开始';
+                meditationAudio.pause();
+                stopTimer();
+            }
+        }
+        
+        // 计时器相关
+        let timerInterval = null;
+        
+        function startTimer() {
+            if (timerInterval) return;
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    // 计时结束
+                    isPlaying = false;
+                    playPauseButton.textContent = '开始';
+                    meditationAudio.pause();
+                    stopTimer();
+                    
+                    // 发送通知
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification('冥想时间结束', {
+                            body: '您的冥想时间已经结束，希望您感到放松和愉悦！',
+                            icon: '/icons/icon-192x192.png',
+                            badge: '/icons/icon-96x96.png',
+                            vibrate: [200, 100, 200]
+                        });
+                    }
+                }
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        // 切换视频背景
+        function switchVideo(direction) {
+            if (isTransitioning) return;
+            
+            isTransitioning = true;
+            
+            setTimeout(() => {
+                if (direction === 'next') {
+                    currentVideoIndex = (currentVideoIndex + 1) % videos.length;
+                } else {
+                    currentVideoIndex = (currentVideoIndex - 1 + videos.length) % videos.length;
+                }
+                
+                updateVideoDisplay();
+                isTransitioning = false;
+            }, 300);
+        }
+        
+        // 更新视频显示
+        function updateVideoDisplay() {
+            const video = videos[currentVideoIndex];
+            videoName.textContent = video.name;
+            
+            // 更新指示器
+            indicators.forEach((indicator, index) => {
+                if (index === currentVideoIndex) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+            
+            // 尝试加载视频文件
+            const videoElement = document.createElement('video');
+            videoElement.src = `public/videos/${video.file}`;
+            videoElement.autoplay = true;
+            videoElement.muted = true;
+            videoElement.loop = true;
+            videoElement.playsInline = true;
+            videoElement.className = 'background-video';
+            
+            videoElement.onloadeddata = () => {
+                videoContainer.innerHTML = '';
+                videoContainer.appendChild(videoElement);
+            };
+            
+            videoElement.onerror = () => {
+                // 视频文件不存在，显示占位符
+                videoContainer.innerHTML = `
+                    <div class="video-placeholder">
+                        <div>
+                            <div>${video.name === '森林背景' ? '🌲' : '🕯️'} ${video.name} 🌲</div>
+                            <div style="margin-top: 20px; font-size: 16px;">视频文件未找到</div>
+                            <div style="margin-top: 10px; font-size: 14px;">请添加 ${video.file} 到 /public/videos/ 目录</div>
+                        </div>
+                    </div>
+                `;
+            };
+        }
+        
+        // 触摸事件处理
+        function handleTouchStart(e) {
+            touchStartX = e.targetTouches[0].clientX;
+        }
+        
+        function handleTouchMove(e) {
+            touchEndX = e.targetTouches[0].clientX;
+        }
+        
+        function handleTouchEnd() {
+            const touchDiff = touchStartX - touchEndX;
+            const minSwipeDistance = 50;
+            
+            if (Math.abs(touchDiff) > minSwipeDistance) {
+                if (touchDiff > 0) {
+                    // 向左滑动 - 下一个视频
+                    switchVideo('next');
+                } else {
+                    // 向右滑动 - 上一个视频
+                    switchVideo('prev');
+                }
+            }
+        }
+        
+        // 鼠标事件处理（桌面端测试）
+        function handleMouseDown(e) {
+            touchStartX = e.clientX;
+        }
+        
+        function handleMouseMove(e) {
+            if (e.buttons === 1) { // 鼠标左键按下
+                touchEndX = e.clientX;
+            }
+        }
+        
+        function handleMouseUp() {
+            const touchDiff = touchStartX - touchEndX;
+            const minSwipeDistance = 50;
+            
+            if (Math.abs(touchDiff) > minSwipeDistance) {
+                if (touchDiff > 0) {
+                    switchVideo('next');
+                } else {
+                    switchVideo('prev');
+                }
+            }
+        }
+        
+        // 指示器点击事件
+        function handleIndicatorClick(e) {
+            const index = parseInt(e.target.dataset.index);
+            if (index !== currentVideoIndex && !isTransitioning) {
+                isTransitioning = true;
+                
+                setTimeout(() => {
+                    currentVideoIndex = index;
+                    updateVideoDisplay();
+                    isTransitioning = false;
+                }, 300);
+            }
+        }
+        
+        // 网络状态监听
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                offlineIndicator.style.display = 'none';
+            } else {
+                offlineIndicator.style.display = 'block';
+            }
+        }
+        
+        // PWA 安装处理
+        let deferredPrompt = null;
+        
+        function handleInstallClick() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('用户接受了 PWA 安装');
+                    } else {
+                        console.log('用户拒绝了 PWA 安装');
+                    }
+                    deferredPrompt = null;
+                    installButton.style.display = 'none';
+                });
+            }
+        }
+        
+        // 初始化
+        function init() {
+            // 绑定事件监听器
+            playPauseButton.addEventListener('click', handlePlayPause);
+            
+            // 滑动手势
+            document.addEventListener('touchstart', handleTouchStart);
+            document.addEventListener('touchmove', handleTouchMove);
+            document.addEventListener('touchend', handleTouchEnd);
+            
+            // 鼠标手势（桌面端）
+            document.addEventListener('mousedown', handleMouseDown);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            
+            // 指示器点击
+            indicators.forEach(indicator => {
+                indicator.addEventListener('click', handleIndicatorClick);
+            });
+            
+            // 网络状态
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus();
+            
+            // PWA 安装提示
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installButton.style.display = 'block';
+            });
+            
+            installButton.addEventListener('click', handleInstallClick);
+            
+            // 请求通知权限
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log('通知权限已授予');
+                    }
+                });
+            }
+            
+            // 初始化显示
+            updateTimerDisplay();
+            updateVideoDisplay();
+            
+            // 注册 Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('public/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker 注册成功:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker 注册失败:', error);
+                    });
+            }
+        }
+        
+        // 启动应用
+        init();
+    </script>
+</body>
 </html>
