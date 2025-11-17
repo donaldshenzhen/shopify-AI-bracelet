@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI手环冥想应用 - 视频背景测试</title>
-    <meta name="description" content="具有视频背景切换功能的冥想计时器应用" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI手环冥想应用</title>
     
     <!-- PWA 相关标签 -->
     <meta name="theme-color" content="#4a90e2" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="AI冥想" />
     
     <!-- Manifest 链接 -->
     <link rel="manifest" href="/manifest.json" />
@@ -18,11 +16,6 @@
     <!-- 图标链接 -->
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
     <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-    <link rel="shortcut icon" href="/icons/icon-96x96.png" />
-    
-    <!-- Microsoft 瓦片 -->
-    <meta name="msapplication-TileColor" content="#4a90e2" />
-    <meta name="msapplication-config" content="/browserconfig.xml" />
     
     <style>
         * {
@@ -45,6 +38,7 @@
             overflow: hidden;
             cursor: grab;
             user-select: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         .meditation-container:active {
@@ -69,10 +63,6 @@
             top: 0;
             left: 0;
             transition: opacity 0.3s ease-in-out;
-        }
-
-        .background-video.transitioning {
-            opacity: 0;
         }
 
         /* 视频指示器 */
@@ -199,205 +189,69 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
 
         .play-pause-button:hover {
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 1);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
         }
 
-        .play-pause-button:active {
-            transform: translateY(0);
-        }
-
-        /* 滑动提示 */
-        .swipe-hint {
-            position: absolute;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #ffffff;
-            font-size: 14px;
-            opacity: 0.7;
-            z-index: 10;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        /* 视频占位符样式 */
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
             text-align: center;
-            line-height: 1.4;
-            transition: opacity 0.3s ease;
-        }
-
-        /* PWA 信息 */
-        .pwa-info {
-            position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #ffffff;
-            font-size: 12px;
-            opacity: 0.6;
-            z-index: 10;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            line-height: 1.4;
-            max-width: 90%;
-            transition: opacity 0.3s ease;
-        }
-
-        /* 隐藏提示信息当用户开始交互时 */
-        .meditation-container.interacting .swipe-hint,
-        .meditation-container.interacting .pwa-info {
-            opacity: 0.3;
         }
 
         /* 响应式设计 */
         @media (max-width: 768px) {
             .timer-display h1 {
                 font-size: 56px;
-                margin-bottom: 30px;
             }
-            
-            .timer-controls {
-                margin-bottom: 60px;
-            }
-            
+
             .play-pause-button {
                 padding: 16px 32px;
                 font-size: 16px;
-                min-height: 50px;
             }
-            
+
             .video-name {
                 font-size: 14px;
-                top: 40px;
+                padding: 4px 12px;
             }
-            
-            .swipe-hint {
-                bottom: 140px;
-                font-size: 13px;
-            }
-            
-            .pwa-info {
-                bottom: 80px;
-                font-size: 11px;
-            }
-        }
 
-        @media (max-width: 480px) {
-            .timer-display {
-                margin-bottom: 20px;
-            }
-            
-            .timer-display h1 {
-                font-size: 42px;
-                margin-bottom: 25px;
-            }
-            
-            .timer-controls {
-                margin-bottom: 50px;
-            }
-            
-            .play-pause-button {
-                padding: 12px 24px;
-                font-size: 14px;
-                min-height: 48px;
-            }
-            
             .pwa-status {
                 top: 10px;
                 right: 10px;
             }
-            
-            .video-name {
-                font-size: 12px;
-                top: 35px;
-                padding: 4px 12px;
-            }
-            
-            .swipe-hint {
-                bottom: 120px;
-                font-size: 12px;
-                padding: 0 20px;
-            }
-            
-            .pwa-info {
-                bottom: 70px;
-                font-size: 10px;
-                padding: 0 20px;
-                line-height: 1.3;
-            }
-        }
-
-        @media (max-height: 700px) {
-            .timer-display {
-                margin-bottom: 15px;
-            }
-            
-            .timer-display h1 {
-                font-size: 36px;
-                margin-bottom: 20px;
-            }
-            
-            .timer-controls {
-                margin-bottom: 30px;
-            }
-            
-            .swipe-hint {
-                bottom: 100px;
-                font-size: 11px;
-            }
-            
-            .pwa-info {
-                bottom: 60px;
-                font-size: 9px;
-            }
         }
 
         @media (max-height: 600px) {
-            .swipe-hint {
-                bottom: 85px;
-                font-size: 10px;
-            }
-            
-            .pwa-info {
-                bottom: 50px;
-                font-size: 8px;
-            }
-            
             .timer-display h1 {
-                font-size: 32px;
-                margin-bottom: 15px;
+                font-size: 48px;
             }
-            
+
+            .timer-display {
+                margin-bottom: 30px;
+            }
+
             .timer-controls {
-                margin-bottom: 25px;
+                margin-bottom: 30px;
+            }
+
+            .play-pause-button {
+                padding: 14px 28px;
+                font-size: 14px;
             }
         }
-
-        .play-pause-button {
-            padding: 14px 28px;
-            font-size: 14px;
-        }
-        
-        .pwa-status {
-            top: 10px;
-            right: 10px;
-        }
-    }
-
-    /* 视频占位符样式 */
-    .video-placeholder {
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 24px;
-        text-align: center;
-    }
+    </style>
 </head>
 <body>
     <div id="root">
@@ -440,16 +294,6 @@
                 
                 <div class="timer-controls">
                     <button id="playPauseButton" class="play-pause-button">开始</button>
-                </div>
-                
-                <!-- 滑动提示 -->
-                <div class="swipe-hint">
-                    <p>👈 左右滑动切换背景 👉</p>
-                </div>
-                
-                <!-- PWA 功能说明 -->
-                <div class="pwa-info">
-                    <p>💡 支持离线使用 • 可安装到主屏幕 • 后台运行</p>
                 </div>
             </div>
             
@@ -637,11 +481,6 @@
                     switchVideo('prev');
                 }
             }
-            
-            // 触发提示文字透明度降低
-            if (typeof reduceHintsOpacity === 'function') {
-                reduceHintsOpacity();
-            }
         }
         
         // 鼠标事件处理（桌面端测试）
@@ -766,41 +605,6 @@
                         console.log('Service Worker 注册失败:', error);
                     });
             }
-            
-            // 添加用户交互检测，降低提示文字透明度
-            let userInteracted = false;
-            
-            function reduceHintsOpacity() {
-                if (!userInteracted) {
-                    userInteracted = true;
-                    const swipeHint = document.querySelector('.swipe-hint');
-                    const pwaInfo = document.querySelector('.pwa-info');
-                    
-                    if (swipeHint) {
-                        swipeHint.style.transition = 'opacity 1s ease-out';
-                        swipeHint.style.opacity = '0.3';
-                    }
-                    
-                    if (pwaInfo) {
-                        pwaInfo.style.transition = 'opacity 1s ease-out';
-                        pwaInfo.style.opacity = '0.3';
-                    }
-                    
-                    // 5秒后完全隐藏提示
-                    setTimeout(() => {
-                        if (swipeHint) {
-                            swipeHint.style.opacity = '0.1';
-                        }
-                        if (pwaInfo) {
-                            pwaInfo.style.opacity = '0.1';
-                        }
-                    }, 5000);
-                }
-            }
-            
-            // 监听用户交互事件
-            document.addEventListener('click', reduceHintsOpacity, { once: true });
-            document.addEventListener('touchstart', reduceHintsOpacity, { once: true });
         }
         
         // 启动应用

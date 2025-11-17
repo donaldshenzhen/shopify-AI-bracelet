@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简洁版冥想应用</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .meditation-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            max-height: 800px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .content-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            z-index: 2;
+        }
+
+        .timer-display {
+            margin-bottom: 40px;
+        }
+
+        .timer-display h1 {
+            font-size: 72px;
+            font-weight: 200;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .timer-controls {
+            margin-bottom: 30px;
+        }
+
+        .play-pause-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+        }
+
+        .play-pause-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .success-message {
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            background: rgba(76, 175, 80, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .success-message h3 {
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .success-message p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="meditation-container">
+        <div class="content-overlay">
+            <div class="timer-display">
+                <h1 id="timerDisplay">10:00</h1>
+            </div>
+            
+            <div class="timer-controls">
+                <button id="playPauseButton" class="play-pause-button">开始</button>
+            </div>
+            
+            <div class="success-message">
+                <h3>🎉 提示文字删除成功！</h3>
+                <p>✅ "左右滑动切换背景" 已删除</p>
+                <p>✅ "支持离线使用..." 已删除</p>
+                <p>🎯 界面现在更加简洁</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 简化版计时器
+        let isPlaying = false;
+        let timeLeft = 10 * 60; // 10分钟
+        let timerInterval = null;
+        
+        const timerDisplay = document.getElementById('timerDisplay');
+        const playPauseButton = document.getElementById('playPauseButton');
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+        }
+        
+        function handlePlayPause() {
+            isPlaying = !isPlaying;
+            
+            if (isPlaying) {
+                playPauseButton.textContent = '暂停';
+                startTimer();
+            } else {
+                playPauseButton.textContent = '开始';
+                stopTimer();
+            }
+        }
+        
+        function startTimer() {
+            if (timerInterval) return;
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    isPlaying = false;
+                    playPauseButton.textContent = '开始';
+                    stopTimer();
+                    alert('冥想时间结束！');
+                }
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+        
+        // 绑定事件
+        playPauseButton.addEventListener('click', handlePlayPause);
+        
+        // 初始化
+        updateTimerDisplay();
+    </script>
+</body>
+</html>
