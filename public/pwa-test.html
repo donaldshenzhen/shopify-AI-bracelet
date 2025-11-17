@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#16213e" />
+    <meta name="description" content="AI-powered smart bracelet meditation and wellness companion" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Meditation" />
+    <meta name="application-name" content="AI Bracelet Meditation" />
+    <meta name="msapplication-TileColor" content="#16213e" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/icon-96x96.png" />
+    <link rel="shortcut icon" href="/icons/icon-96x96.png" />
+    
+    <title>AI Bracelet Meditation - PWA Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .pwa-status {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+            z-index: 10;
+        }
+
+        .offline-indicator {
+            background: rgba(255, 152, 0, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            animation: pulse 2s infinite;
+        }
+
+        .install-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .install-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 300;
+        }
+
+        .timer-display {
+            font-size: 3rem;
+            font-weight: 300;
+            margin: 2rem 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            margin: 2rem 0;
+        }
+
+        button {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            margin: 0 0.5rem;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .status {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .feature-list {
+            text-align: left;
+            margin: 1rem 0;
+        }
+
+        .feature-list li {
+            margin: 0.5rem 0;
+            list-style: none;
+        }
+
+        .feature-list li::before {
+            content: "✓ ";
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @media (max-width: 768px) {
+            .pwa-status {
+                position: relative;
+                top: auto;
+                margin-bottom: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0 1rem;
+            }
+            
+            .offline-indicator,
+            .install-button {
+                width: 100%;
+                text-align: center;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .timer-display {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- PWA 状态指示器 -->
+    <div class="pwa-status">
+        <div id="offlineIndicator" class="offline-indicator" style="display: none;">
+            📱 离线模式
+        </div>
+        <button id="installButton" class="install-button" style="display: none;">
+            📱 安装应用
+        </button>
+    </div>
+
+    <div class="container">
+        <h1>AI Bracelet Meditation</h1>
+        <p>PWA 功能测试页面</p>
+        
+        <div class="timer-display" id="timerDisplay">10:00</div>
+        
+        <div class="controls">
+            <button id="startButton">开始冥想</button>
+            <button id="stopButton">停止</button>
+            <button id="testNotification">测试通知</button>
+        </div>
+        
+        <div class="status">
+            <h3>PWA 功能状态</h3>
+            <ul class="feature-list">
+                <li id="serviceWorkerStatus">检查 Service Worker...</li>
+                <li id="manifestStatus">检查 Manifest...</li>
+                <li id="cacheStatus">检查缓存...</li>
+                <li id="notificationStatus">检查通知权限...</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let isPlaying = false;
+        let timeLeft = 10 * 60; // 10分钟
+        let timerInterval = null;
+        let deferredPrompt = null;
+
+        // DOM 元素
+        const timerDisplay = document.getElementById('timerDisplay');
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const testNotification = document.getElementById('testNotification');
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        const installButton = document.getElementById('installButton');
+        
+        // 状态元素
+        const serviceWorkerStatus = document.getElementById('serviceWorkerStatus');
+        const manifestStatus = document.getElementById('manifestStatus');
+        const cacheStatus = document.getElementById('cacheStatus');
+        const notificationStatus = document.getElementById('notificationStatus');
+
+        // 格式化时间
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // 更新计时器显示
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+        }
+
+        // 开始计时器
+        function startTimer() {
+            if (isPlaying) return;
+            
+            isPlaying = true;
+            startButton.textContent = '暂停';
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    showNotification('冥想时间结束', '您的冥想时间已经结束，希望您感到放松和愉悦！');
+                }
+            }, 1000);
+        }
+
+        // 停止计时器
+        function stopTimer() {
+            isPlaying = false;
+            startButton.textContent = '开始冥想';
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            timeLeft = 10 * 60;
+            updateTimerDisplay();
+        }
+
+        // 显示通知
+        function showNotification(title, body) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: body,
+                    icon: '/icons/icon-192x192.png',
+                    badge: '/icons/icon-96x96.png',
+                    vibrate: [200, 100, 200]
+                });
+            }
+        }
+
+        // 检查网络状态
+        function updateOnlineStatus() {
+            offlineIndicator.style.display = navigator.onLine ? 'none' : 'block';
+        }
+
+        // 注册 Service Worker
+        async function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('Service Worker 注册成功:', registration);
+                    serviceWorkerStatus.textContent = '✓ Service Worker 已注册';
+                    
+                    // 检查更新
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('发现新版本，请刷新页面');
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.error('Service Worker 注册失败:', error);
+                    serviceWorkerStatus.textContent = '✗ Service Worker 注册失败';
+                }
+            } else {
+                serviceWorkerStatus.textContent = '✗ 浏览器不支持 Service Worker';
+            }
+        }
+
+        // 检查 Manifest
+        function checkManifest() {
+            if ('manifest' in document) {
+                manifestStatus.textContent = '✓ Manifest 已链接';
+            } else {
+                manifestStatus.textContent = '✗ Manifest 未找到';
+            }
+        }
+
+        // 检查缓存
+        async function checkCache() {
+            if ('caches' in window) {
+                try {
+                    const cacheNames = await caches.keys();
+                    if (cacheNames.length > 0) {
+                        cacheStatus.textContent = `✓ 找到 ${cacheNames.length} 个缓存`;
+                    } else {
+                        cacheStatus.textContent = '○ 暂无缓存';
+                    }
+                } catch (error) {
+                    cacheStatus.textContent = '✗ 缓存检查失败';
+                }
+            } else {
+                cacheStatus.textContent = '✗ 浏览器不支持 Cache API';
+            }
+        }
+
+        // 检查通知权限
+        function checkNotificationPermission() {
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    notificationStatus.textContent = '✓ 通知权限已授予';
+                } else if (Notification.permission === 'denied') {
+                    notificationStatus.textContent = '✗ 通知权限被拒绝';
+                } else {
+                    notificationStatus.textContent = '○ 通知权限未设置';
+                }
+            } else {
+                notificationStatus.textContent = '✗ 浏览器不支持通知';
+            }
+        }
+
+        // 请求通知权限
+        async function requestNotificationPermission() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                const permission = await Notification.requestPermission();
+                checkNotificationPermission();
+                return permission === 'granted';
+            }
+            return false;
+        }
+
+        // PWA 安装处理
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installButton.style.display = 'block';
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('用户接受了 PWA 安装');
+                } else {
+                    console.log('用户拒绝了 PWA 安装');
+                }
+                deferredPrompt = null;
+                installButton.style.display = 'none';
+            }
+        });
+
+        // 事件监听器
+        startButton.addEventListener('click', () => {
+            if (isPlaying) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
+        });
+
+        stopButton.addEventListener('click', stopTimer);
+
+        testNotification.addEventListener('click', async () => {
+            const hasPermission = await requestNotificationPermission();
+            if (hasPermission) {
+                showNotification('测试通知', '这是一个测试通知，PWA 功能正常工作！');
+            } else {
+                alert('请先授予通知权限');
+            }
+        });
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTimerDisplay();
+            updateOnlineStatus();
+            registerServiceWorker();
+            checkManifest();
+            checkCache();
+            checkNotificationPermission();
+        });
+    </script>
+</body>
+</html>
